@@ -1,0 +1,8 @@
+README.txt
+put_auctions.py
+setup.py
+put_auctions.egg-info/PKG-INFO
+put_auctions.egg-info/SOURCES.txt
+put_auctions.egg-info/dependency_links.txt
+put_auctions.egg-info/requires.txt
+put_auctions.egg-info/top_level.txt
