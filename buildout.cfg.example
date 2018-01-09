@@ -3,7 +3,7 @@ extends = profiles/base.cfg
 
 [auctions_info]
 auction_type = insider
-auction_number = 10000
+auctions_number = 10000
 tender_id_base = '3'
 
 [insider]

@@ -1,9 +1,11 @@
 # TODO: It is completed only for 'insider' auctions
 
-# HOW TO USE:
-# ./put_auctions.py insider planning
+# Examples of usage:
+# ./put_auctions.py insider planning --wait_for_result
 # ./put_auctions.py insider run
-# ./put_auctions.py insider load-testing 10000
+# or
+# ./put_auctions.py insider planning --wait_for_result && ./put_auctions.py insider run
+# ./put_auctions.py insider load-testing --auctions_number 10000
 
 import os.path
 import json
@@ -21,7 +23,7 @@ PWD = os.path.dirname(os.path.realpath(__file__))
 CWD = os.getcwd()
 
 TENDER_DATA = \
-    {'insider': {'path': '{}/data/insider.json'.format(PWD),
+    {'insider': {'path': os.path.join(PWD, '..', 'data', 'insider.json'),
                  'worker': 'auction_insider',
                  'id': 'NOT DEFINED YET',
                  'config': 'auction_worker_insider.yaml',
@@ -47,29 +49,33 @@ def update_auctionPeriod(path, auction_type):
     auction_file.close()
 
 
-def planning(tender_file_path, worker, auction_id, config, wait_for_result=True):
+def planning(tender_file_path, worker, auction_id, config,
+             wait_for_result=False):
     with update_auctionPeriod(tender_file_path,
                               auction_type='simple') as auction_file:
-        p = Popen('{0}/bin/{1} planning {2}'
-                  ' {0}/etc/{3} --planning_procerude partial_db --auction_info {3}'.format(
-            CWD, worker, auction_id, config, auction_file).split())
+        p = Popen('{0}/bin/{1} planning {2} {0}/etc/{3} --planning_procerude '
+                  'partial_db --auction_info {3}'
+                  .format(CWD, worker, auction_id, config,
+                          auction_file).split())
         if wait_for_result:
             p.wait()
             sleep(1)
 
 
-def run(tender_file_path, worker, auction_id, config, wait_for_result=True):
+def run(tender_file_path, worker, auction_id, config, wait_for_result=False):
     with update_auctionPeriod(tender_file_path,
                               auction_type='simple') as auction_file:
-        p = Popen('{0}/bin/{1} run {2}'
-                     ' {0}/etc/{3} --planning_procerude partial_db --auction_info {3}'.format(
-            CWD, worker, auction_id, config, auction_file).split())
+        p = Popen('{0}/bin/{1} run {2} {0}/etc/{3} --planning_procerude '
+                  'partial_db --auction_info {3}'
+                  .format(CWD, worker, auction_id, config,
+                          auction_file).split())
         if wait_for_result:
             p.wait()
             sleep(1)
 
 
-def load_testing(tender_file_path, worker, config, count, tender_id_base, run_auction=False):
+def load_testing(tender_file_path, worker, config, count, tender_id_base,
+                 run_auction=False, wait_for_result=False):
     positions = int(ceil(log10(count)))
 
     auction_id_template = \
@@ -77,41 +83,47 @@ def load_testing(tender_file_path, worker, config, count, tender_id_base, run_au
 
     for i in xrange(0, count):
         auction_id = auction_id_template.format(i)
-        planning(tender_file_path, worker, auction_id, config,
-                 wait_for_result=False)
+        planning(tender_file_path, worker, auction_id, config, wait_for_result)
         if run_auction:
-            run(tender_file_path, worker, auction_id, config,
-                wait_for_result=False)
+            run(tender_file_path, worker, auction_id, config, wait_for_result)
 
 
-def main(auction_type, action_type, tender_id_base=None, auctions_count=0,
-         run_auction=False):
+def main(auction_type, action_type, tender_file_path='', tender_id_base=None,
+         auctions_number=0, run_auction=False, wait_for_result=False):
     actions = globals()
-    tender_id_base_local = \
-        tender_id_base or TENDER_DATA[auction_type]['tender_id_base']
-    if action_type in actions:
+    tender_id_base_local = TENDER_DATA[auction_type]['tender_id_base'] if \
+        tender_id_base is None else tender_id_base
+    path = tender_file_path or TENDER_DATA[auction_type]['path']
+    if action_type in [elem.replace('_', '-') for elem in actions]:
         if action_type == 'load-testing':
             load_testing(
-                TENDER_DATA[auction_type]['path'],
+                path,
                 TENDER_DATA[auction_type]['worker'],
                 TENDER_DATA[auction_type]['config'],
-                auctions_count,
+                auctions_number,
                 tender_id_base_local,
-                run_auction
+                run_auction,
+                wait_for_result
             )
         else:
-            actions.get(action_type)(TENDER_DATA[auction_type]['path'],
+            actions.get(action_type)(path,
                                      TENDER_DATA[auction_type]['worker'],
                                      TENDER_DATA[auction_type]['id'],
-                                     TENDER_DATA[auction_type]['config'])
+                                     TENDER_DATA[auction_type]['config'],
+                                     wait_for_result)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('auction_type', type=str)
     parser.add_argument('action_type', type=str)
-# TODO: need to be completed:
-#    parser.add_argument('tender_id_base', type=str)
+    parser.add_argument('--tender_file_path', type=str, nargs='?', default='')
+    parser.add_argument('--tender_id_base', type=str, nargs='?', default=None)
+    parser.add_argument('--auctions_number', type=int, nargs='?', default=1)
+    parser.add_argument('--run_auction', action='store_true')
+    parser.add_argument('--wait_for_result', action='store_true')
 
     args = parser.parse_args()
-    main(args.auction_type, args.action_type, auctions_count=0)
+    main(args.auction_type, args.action_type, args.tender_file_path,
+         args.tender_id_base, args.auctions_number, args.run_auction,
+         args.wait_for_result)
