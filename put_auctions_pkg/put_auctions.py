@@ -5,17 +5,16 @@
 # ./put_auctions.py insider run
 # ./put_auctions.py insider load-testing 10000
 
-import os
-import os.path
 import os.path
 import json
 import argparse
 import contextlib
 import tempfile
 from dateutil.tz import tzlocal
-from subprocess import check_output
+from subprocess import Popen
 from datetime import datetime, timedelta
 from math import ceil, log10
+from time import sleep
 
 PAUSE_SECONDS = timedelta(seconds=120)
 PWD = os.path.dirname(os.path.realpath(__file__))
@@ -48,25 +47,29 @@ def update_auctionPeriod(path, auction_type):
     auction_file.close()
 
 
-def planning(tender_file_path, worker, auction_id, config):
+def planning(tender_file_path, worker, auction_id, config, wait_for_result=True):
     with update_auctionPeriod(tender_file_path,
                               auction_type='simple') as auction_file:
-        os.system('{0}/bin/{1} planning {2}'
+        p = Popen('{0}/bin/{1} planning {2}'
                   ' {0}/etc/{3} --planning_procerude partial_db --auction_info {3}'.format(
-            CWD, worker, auction_id, config, auction_file))
-    os.system('sleep 3')
+            CWD, worker, auction_id, config, auction_file).split())
+        if wait_for_result:
+            p.wait()
+            sleep(1)
 
 
-def run(tender_file_path, worker, auction_id, config):
+def run(tender_file_path, worker, auction_id, config, wait_for_result=True):
     with update_auctionPeriod(tender_file_path,
                               auction_type='simple') as auction_file:
-        check_output('{0}/bin/{1} run {2}'
+        p = Popen('{0}/bin/{1} run {2}'
                      ' {0}/etc/{3} --planning_procerude partial_db --auction_info {3}'.format(
             CWD, worker, auction_id, config, auction_file).split())
-    os.system('sleep 3')
+        if wait_for_result:
+            p.wait()
+            sleep(1)
 
 
-def load_testing(tender_file_path, worker, config, count, tender_id_base):
+def load_testing(tender_file_path, worker, config, count, tender_id_base, run_auction=False):
     positions = int(ceil(log10(count)))
 
     auction_id_template = \
@@ -74,11 +77,15 @@ def load_testing(tender_file_path, worker, config, count, tender_id_base):
 
     for i in xrange(0, count):
         auction_id = auction_id_template.format(i)
-        planning(tender_file_path, worker, auction_id, config)
-        # run(tender_file_path, worker, auction_id, config)
+        planning(tender_file_path, worker, auction_id, config,
+                 wait_for_result=False)
+        if run_auction:
+            run(tender_file_path, worker, auction_id, config,
+                wait_for_result=False)
 
 
-def main(auction_type, action_type, tender_id_base=None, auctions_count=0):
+def main(auction_type, action_type, tender_id_base=None, auctions_count=0,
+         run_auction=False):
     actions = globals()
     tender_id_base_local = \
         tender_id_base or TENDER_DATA[auction_type]['tender_id_base']
@@ -89,7 +96,8 @@ def main(auction_type, action_type, tender_id_base=None, auctions_count=0):
                 TENDER_DATA[auction_type]['worker'],
                 TENDER_DATA[auction_type]['config'],
                 auctions_count,
-                tender_id_base_local
+                tender_id_base_local,
+                run_auction
             )
         else:
             actions.get(action_type)(TENDER_DATA[auction_type]['path'],
