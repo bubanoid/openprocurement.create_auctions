@@ -5,6 +5,7 @@ extends = profiles/base.cfg
 auction_type = insider
 auctions_number = 10000
 tender_id_base = '3'
+concurency = 1000
 
 [insider]
 bidders =
