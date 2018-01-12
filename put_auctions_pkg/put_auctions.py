@@ -54,7 +54,7 @@ def planning(tender_file_path, worker, auction_id, config,
     with update_auctionPeriod(tender_file_path,
                               auction_type='simple') as auction_file:
         p = Popen('{0}/bin/{1} planning {2} {0}/etc/{3} --planning_procerude '
-                  'partial_db --auction_info {3}'
+                  'partial_db --auction_info {4}'
                   .format(CWD, worker, auction_id, config,
                           auction_file).split())
         if wait_for_result:
@@ -65,7 +65,7 @@ def run(tender_file_path, worker, auction_id, config, wait_for_result=False):
     with update_auctionPeriod(tender_file_path,
                               auction_type='simple') as auction_file:
         p = Popen('{0}/bin/{1} run {2} {0}/etc/{3} --planning_procerude '
-                  'partial_db --auction_info {3}'
+                  'partial_db --auction_info {4}'
                   .format(CWD, worker, auction_id, config,
                           auction_file).split())
         if wait_for_result:
