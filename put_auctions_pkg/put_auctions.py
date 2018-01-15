@@ -25,7 +25,7 @@ CWD = os.getcwd()
 TENDER_DATA = \
     {'insider': {'path': os.path.join(PWD, '..', 'data', 'insider.json'),
                  'worker': 'auction_insider',
-                 'id': 'NOT DEFINED YET',
+                 'id': '1'*32,
                  'config': 'auction_worker_insider.yaml',
                  'tender_id_base': '1'}}
 
