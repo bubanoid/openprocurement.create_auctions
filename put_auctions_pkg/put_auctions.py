@@ -92,6 +92,7 @@ def load_testing(tender_file_path, worker, config, count, tender_id_base,
                 (tender_file_path, worker, auction_id, config, wait_for_result)
             )
         pool.wait_available()
+    pool.join()
 
 
 def main(auction_type, action_type, tender_file_path='', tender_id_base=None,
