@@ -14,7 +14,8 @@ import contextlib
 import tempfile
 from dateutil.tz import tzlocal
 from gevent.pool import Pool
-from subprocess import Popen
+from gevent.subprocess import Popen
+from gevent.subprocess import check_output
 from datetime import datetime, timedelta
 from math import ceil, log10
 
@@ -49,16 +50,21 @@ def update_auctionPeriod(path, auction_type):
     auction_file.close()
 
 
+# TODO: should be studied and improved
 def planning(tender_file_path, worker, auction_id, config,
              wait_for_result=False):
     with update_auctionPeriod(tender_file_path,
                               auction_type='simple') as auction_file:
-        p = Popen('{0}/bin/{1} planning {2} {0}/etc/{3} --planning_procerude '
-                  'partial_db --auction_info {4}'
-                  .format(CWD, worker, auction_id, config,
-                          auction_file).split())
-        if wait_for_result:
-            p.wait()
+        command = '{0}/bin/{1} planning {2} {0}/etc/{3} ' \
+                  '--planning_procerude partial_db --auction_info {4}'\
+            .format(CWD, worker, auction_id, config, auction_file).split()
+        check_output(command.split())
+        # p = Popen('{0}/bin/{1} planning {2} {0}/etc/{3} --planning_procerude '
+        #           'partial_db --auction_info {4}'
+        #           .format(CWD, worker, auction_id, config,
+        #                   auction_file).split())
+        # if wait_for_result:
+        #     p.wait()
 
 
 def run(tender_file_path, worker, auction_id, config, wait_for_result=False):
