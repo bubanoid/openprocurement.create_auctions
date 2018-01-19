@@ -96,3 +96,5 @@ buildout.cfg
 bin/
 etc/
 # circus.ini
+
+/data
