@@ -6,7 +6,7 @@
             "startDate": "2016-12-26T15:50:14.003746+02:00"
         },
         "bids": [
-{% for item in [r.strip() for r in parts[parts['auctions_info'].auction_type].bidders.split() if r.strip()] %}\
+{% for item in [r.strip() for r in parts[parts['auctions_info'].auction_type].bidders.split()[:-1] if r.strip()] %}\
             {
                 "date": "2014-11-19T08:22:21.726234+00:00",
                 "id": "${item}",
@@ -34,10 +34,11 @@
                     }
                 ]
             },
-{% end %}
+{% end %}\
+{% for item in [r.strip() for r in parts[parts['auctions_info'].auction_type].bidders.split()[-1:] if r.strip()] %}\
             {
                 "date": "2014-11-19T08:22:21.726234+00:00",
-                "id": "e4456d02263441ffb3f00ceafa661bb2",
+                "id": "${item}",
                 "tenderers": [
                     {
                         "address": {
@@ -62,6 +63,7 @@
                     }
                 ]
             }
+{% end %}\
         ],
         "dateModified": "2014-11-19T08:22:24.866669+00:00",
         "description": "Tender Description",
