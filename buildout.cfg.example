@@ -8,6 +8,7 @@ tender_id_base = '1'
 concurency = 100
 
 [insider]
+dutch_steps = 10
 bidders =
   93b5e1de62734362b09abfead33a7c60
   b663ca42ff3d4289a0251a1cb42ff818
