@@ -7,7 +7,7 @@
         },
         "auctionParameters": {
              "type": "insider",
-             "dutchSteps": ${parts[parts['auctions_info']].dutch_steps}
+             "dutchSteps": ${parts[parts['auctions_info'].auction_type].dutch_steps}
         },
         "bids": [
 {% for item in [r.strip() for r in parts[parts['auctions_info'].auction_type].bidders.split()[:-1] if r.strip()] %}\
