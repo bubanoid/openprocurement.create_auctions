@@ -6,6 +6,7 @@ auction_type = insider
 auctions_number = 1000
 tender_id_base = '1'
 concurency = 100
+worker_directory_path = /home/quintagroup.com/openprocurement.auction.buildout
 
 [insider]
 dutch_steps = 10
