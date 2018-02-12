@@ -51,13 +51,14 @@ def update_auctionPeriod(path, auction_type):
 
 
 # TODO: should be studied and improved
-def planning(tender_file_path, worker, auction_id, config,
-             wait_for_result=False):
+def planning(worker_directory_path, tender_file_path, worker, auction_id,
+             config, wait_for_result=False):
     with update_auctionPeriod(tender_file_path,
                               auction_type='simple') as auction_file:
         command = '{0}/bin/{1} planning {2} {0}/etc/{3} ' \
                   '--planning_procerude partial_db --auction_info {4}'\
-            .format(CWD, worker, auction_id, config, auction_file)
+            .format(worker_directory_path, worker, auction_id, config,
+                    auction_file)
         check_output(command.split())
         # p = Popen('{0}/bin/{1} planning {2} {0}/etc/{3} --planning_procerude '
         #           'partial_db --auction_info {4}'
@@ -67,19 +68,21 @@ def planning(tender_file_path, worker, auction_id, config,
         #     p.wait()
 
 
-def run(tender_file_path, worker, auction_id, config, wait_for_result=False):
+def run(worker_directory_path, tender_file_path, worker, auction_id, config,
+        wait_for_result=False):
     with update_auctionPeriod(tender_file_path,
                               auction_type='simple') as auction_file:
         p = Popen('{0}/bin/{1} run {2} {0}/etc/{3} --planning_procerude '
                   'partial_db --auction_info {4}'
-                  .format(CWD, worker, auction_id, config,
+                  .format(worker_directory_path, worker, auction_id, config,
                           auction_file).split())
         if wait_for_result:
             p.wait()
 
 
-def load_testing(tender_file_path, worker, config, count, tender_id_base,
-                 concurency, run_auction=False, wait_for_result=False):
+def load_testing(worker_directory_path, tender_file_path, worker, config,
+                 count, tender_id_base, concurency, run_auction=False,
+                 wait_for_result=False):
     positions = int(ceil(log10(count)))
 
     auction_id_template = \
@@ -90,7 +93,8 @@ def load_testing(tender_file_path, worker, config, count, tender_id_base,
         auction_id = auction_id_template.format(i)
         pool.apply_async(
             planning,
-            (tender_file_path, worker, auction_id, config, wait_for_result)
+            (worker_directory_path, tender_file_path, worker, auction_id,
+             config, wait_for_result)
         )
         if run_auction:
             pool.apply_async(
@@ -101,27 +105,27 @@ def load_testing(tender_file_path, worker, config, count, tender_id_base,
     pool.join()
 
 
-def main(auction_type, action_type, tender_file_path='', tender_id_base=None,
-         auctions_number=0, concurency=500, run_auction=False,
-         wait_for_result=False):
+def main(auction_type, action_type, worker_directory_path=CWD,
+         tender_file_path='', tender_id_base=None, auctions_number=0,
+         concurency=500, run_auction=False, wait_for_result=False):
     actions = globals()
     tender_id_base_local = TENDER_DATA[auction_type]['tender_id_base'] if \
         tender_id_base is None else tender_id_base
-    path = tender_file_path or TENDER_DATA[auction_type]['path']
+    tender_file_path = tender_file_path or TENDER_DATA[auction_type]['path']
     if action_type in [elem.replace('_', '-') for elem in actions]:
         if action_type == 'load-testing':
-            load_testing(
-                path,
-                TENDER_DATA[auction_type]['worker'],
-                TENDER_DATA[auction_type]['config'],
-                auctions_number,
-                tender_id_base_local,
-                concurency,
-                run_auction,
-                wait_for_result
-            )
+            load_testing(worker_directory_path,
+                         tender_file_path,
+                         TENDER_DATA[auction_type]['worker'],
+                         TENDER_DATA[auction_type]['config'],
+                         auctions_number,
+                         tender_id_base_local,
+                         concurency,
+                         run_auction,
+                         wait_for_result)
         else:
-            actions.get(action_type)(path,
+            actions.get(action_type)(worker_directory_path,
+                                     tender_file_path,
                                      TENDER_DATA[auction_type]['worker'],
                                      TENDER_DATA[auction_type]['id'],
                                      TENDER_DATA[auction_type]['config'],
@@ -132,6 +136,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('auction_type', type=str)
     parser.add_argument('action_type', type=str)
+    parser.add_argument('--worker_directory_path', type=str, nargs='?',
+                        default=CWD)
     parser.add_argument('--tender_file_path', type=str, nargs='?', default='')
     parser.add_argument('--tender_id_base', type=str, nargs='?', default=None)
     parser.add_argument('--auctions_number', type=int, nargs='?', default=1)
@@ -140,6 +146,6 @@ if __name__ == '__main__':
     parser.add_argument('--wait_for_result', action='store_true')
 
     args = parser.parse_args()
-    main(args.auction_type, args.action_type, args.tender_file_path,
-         args.tender_id_base, args.auctions_number, args.concurency,
-         args.run_auction, args.wait_for_result)
+    main(args.auction_type, args.action_type, args.worker_directory_path,
+         args.tender_file_path, args.tender_id_base, args.auctions_number,
+         args.concurency, args.run_auction, args.wait_for_result)
