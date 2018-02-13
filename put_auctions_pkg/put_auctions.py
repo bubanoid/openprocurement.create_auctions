@@ -81,7 +81,7 @@ def run(worker_directory_path, tender_file_path, worker, auction_id, config,
 
 
 def load_testing(worker_directory_path, tender_file_path, worker, config,
-                 count, tender_id_base, concurency, run_auction=False,
+                 count, initial_number, tender_id_base, concurency, run_auction=False,
                  wait_for_result=False):
     positions = int(ceil(log10(count)))
 
@@ -89,7 +89,7 @@ def load_testing(worker_directory_path, tender_file_path, worker, config,
         tender_id_base * (32 - positions) + '{{0:0{}d}}'.format(positions)
 
     pool = Pool(concurency)
-    for i in xrange(0, count):
+    for i in xrange(initial_number, count):
         auction_id = auction_id_template.format(i)
         pool.apply_async(
             planning,
@@ -107,7 +107,7 @@ def load_testing(worker_directory_path, tender_file_path, worker, config,
 
 def main(auction_type, action_type, worker_directory_path=CWD,
          tender_file_path='', tender_id_base=None, auctions_number=0,
-         concurency=500, run_auction=False, wait_for_result=False):
+         initial_number=0, concurency=500, run_auction=False, wait_for_result=False):
     actions = globals()
     tender_id_base_local = TENDER_DATA[auction_type]['tender_id_base'] if \
         tender_id_base is None else tender_id_base
@@ -119,6 +119,7 @@ def main(auction_type, action_type, worker_directory_path=CWD,
                          TENDER_DATA[auction_type]['worker'],
                          TENDER_DATA[auction_type]['config'],
                          auctions_number,
+                         initial_number,
                          tender_id_base_local,
                          concurency,
                          run_auction,
@@ -141,6 +142,7 @@ if __name__ == '__main__':
     parser.add_argument('--tender_file_path', type=str, nargs='?', default='')
     parser.add_argument('--tender_id_base', type=str, nargs='?', default=None)
     parser.add_argument('--auctions_number', type=int, nargs='?', default=1)
+    parser.add_argument('--initial_number', type=int, nargs='?', default=0)
     parser.add_argument('--concurency', type=int, nargs='?', default=500)
     parser.add_argument('--run_auction', action='store_true')
     parser.add_argument('--wait_for_result', action='store_true')
@@ -148,4 +150,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
     main(args.auction_type, args.action_type, args.worker_directory_path,
          args.tender_file_path, args.tender_id_base, args.auctions_number,
-         args.concurency, args.run_auction, args.wait_for_result)
+         args.initial_number, args.concurency, args.run_auction,
+         args.wait_for_result)

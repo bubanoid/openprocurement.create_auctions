@@ -4,6 +4,7 @@ extends = profiles/base.cfg
 [auctions_info]
 auction_type = insider
 auctions_number = 1000
+initial_number = 0
 tender_id_base = '1'
 concurency = 100
 worker_directory_path = /home/quintagroup.com/openprocurement.auction.buildout
