@@ -17,7 +17,6 @@ from gevent.pool import Pool
 from gevent.subprocess import Popen
 from gevent.subprocess import check_output
 from datetime import datetime, timedelta
-from math import ceil, log10
 
 PWD = os.path.dirname(os.path.realpath(__file__))
 CWD = os.getcwd()
@@ -86,7 +85,7 @@ def load_testing(worker_directory_path, tender_file_path, worker, config,
                  count, initial_number, tender_id_base, concurency,
                  run_auction=False, time_offset=timedelta(seconds=120),
                  wait_for_result=False):
-    positions = int(ceil(log10(count)))
+    positions = 4
 
     auction_id_template = \
         tender_id_base * (32 - positions) + '{{0:0{}d}}'.format(positions)
