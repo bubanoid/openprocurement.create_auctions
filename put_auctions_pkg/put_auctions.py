@@ -30,8 +30,8 @@ TENDER_DATA = \
 
 
 @contextlib.contextmanager
-def update_auctionPeriod(path, auction_type,
-                         time_offset=timedelta(seconds=120)):
+def update_auctionPeriod(path, auction_type, time_offset_sec=120):
+    time_offset = timedelta(seconds=time_offset_sec)
     with open(path) as file:
         data = json.loads(file.read())
     new_start_time = (datetime.now(tzlocal()) + time_offset).isoformat()
@@ -53,7 +53,7 @@ def update_auctionPeriod(path, auction_type,
 def planning(worker_directory_path, tender_file_path, worker, auction_id,
              config, time_offset, wait_for_result=False):
     with update_auctionPeriod(tender_file_path, auction_type='simple',
-                              time_offset=timedelta(seconds=time_offset)) \
+                              time_offset_sec=time_offset) \
             as auction_file:
         command = '{0}/bin/{1} planning {2} {0}/etc/{3} ' \
                   '--planning_procerude partial_db --auction_info {4}'\
@@ -71,7 +71,7 @@ def planning(worker_directory_path, tender_file_path, worker, auction_id,
 def run(worker_directory_path, tender_file_path, worker, auction_id, config,
         time_offset, wait_for_result=False):
     with update_auctionPeriod(tender_file_path, auction_type='simple',
-                              time_offset=timedelta(seconds=time_offset)) \
+                              time_offset_sec=time_offset) \
             as auction_file:
         p = Popen('{0}/bin/{1} run {2} {0}/etc/{3} --planning_procerude '
                   'partial_db --auction_info {4}'
