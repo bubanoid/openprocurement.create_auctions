@@ -7,10 +7,12 @@ auctions_number = 1000
 initial_number = 0
 tender_id_base = '1'
 concurency = 100
+time_offset = 120
 worker_directory_path = /home/quintagroup.com/openprocurement.auction.buildout
 
 [insider]
 dutch_steps = 10
+time_offset = 180
 bidders =
   93b5e1de62734362b09abfead33a7c60
   b663ca42ff3d4289a0251a1cb42ff818
