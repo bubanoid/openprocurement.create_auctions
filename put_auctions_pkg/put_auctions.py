@@ -52,8 +52,8 @@ def update_auctionPeriod(path, auction_type,
 # TODO: should be studied and improved
 def planning(worker_directory_path, tender_file_path, worker, auction_id,
              config, time_offset, wait_for_result=False):
-    with update_auctionPeriod(tender_file_path,
-                              auction_type='simple', time_offset=time_offset) \
+    with update_auctionPeriod(tender_file_path, auction_type='simple',
+                              time_offset=timedelta(seconds=time_offset)) \
             as auction_file:
         command = '{0}/bin/{1} planning {2} {0}/etc/{3} ' \
                   '--planning_procerude partial_db --auction_info {4}'\
@@ -70,8 +70,8 @@ def planning(worker_directory_path, tender_file_path, worker, auction_id,
 
 def run(worker_directory_path, tender_file_path, worker, auction_id, config,
         time_offset, wait_for_result=False):
-    with update_auctionPeriod(tender_file_path,
-                              auction_type='simple', time_offset=time_offset) \
+    with update_auctionPeriod(tender_file_path, auction_type='simple',
+                              time_offset=timedelta(seconds=time_offset)) \
             as auction_file:
         p = Popen('{0}/bin/{1} run {2} {0}/etc/{3} --planning_procerude '
                   'partial_db --auction_info {4}'
@@ -83,7 +83,7 @@ def run(worker_directory_path, tender_file_path, worker, auction_id, config,
 
 def load_testing(worker_directory_path, tender_file_path, worker, config,
                  count, initial_number, tender_id_base, concurency,
-                 run_auction=False, time_offset=timedelta(seconds=120),
+                 run_auction=False, time_offset=120,
                  wait_for_result=False):
     positions = 4
 
@@ -101,7 +101,8 @@ def load_testing(worker_directory_path, tender_file_path, worker, config,
         if run_auction:
             pool.apply_async(
                 run,
-                (tender_file_path, worker, auction_id, config, wait_for_result)
+                (tender_file_path, worker, auction_id, config, time_offset,
+                 wait_for_result)
             )
         pool.wait_available()
     pool.join()
@@ -110,7 +111,7 @@ def load_testing(worker_directory_path, tender_file_path, worker, config,
 def main(auction_type, action_type, worker_directory_path=CWD,
          tender_file_path='', tender_id_base=None, auctions_number=0,
          initial_number=0, concurency=500, run_auction=False,
-         time_offset=timedelta(seconds=120), wait_for_result=False):
+         time_offset=120, wait_for_result=False):
     actions = globals()
     tender_id_base_local = TENDER_DATA[auction_type]['tender_id_base'] if \
         tender_id_base is None else tender_id_base
@@ -157,4 +158,4 @@ if __name__ == '__main__':
     main(args.auction_type, args.action_type, args.worker_directory_path,
          args.tender_file_path, args.tender_id_base, args.auctions_number,
          args.initial_number, args.concurency, args.run_auction,
-         timedelta(seconds=args.time_offset), args.wait_for_result)
+         args.time_offset, args.wait_for_result)
