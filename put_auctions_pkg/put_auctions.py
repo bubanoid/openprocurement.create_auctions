@@ -17,6 +17,8 @@ from gevent.pool import Pool
 from gevent.subprocess import Popen
 from gevent.subprocess import check_output
 from datetime import datetime, timedelta
+from random import randint
+import iso8601
 
 PWD = os.path.dirname(os.path.realpath(__file__))
 CWD = os.getcwd()
@@ -30,11 +32,18 @@ TENDER_DATA = \
 
 
 @contextlib.contextmanager
-def update_auctionPeriod(path, auction_type, time_offset_sec=120):
+def update_auctionPeriod(path, auction_type, start_time=None,
+                         time_offset_sec=120):
+    if not start_time:
+        start_time = datetime.now(tzlocal())
+    else:
+        start_time = iso8601.parse_date(start_time)
+
+    time_offset_sec = randint(0, time_offset_sec)
     time_offset = timedelta(seconds=time_offset_sec)
     with open(path) as file:
         data = json.loads(file.read())
-    new_start_time = (datetime.now(tzlocal()) + time_offset).isoformat()
+    new_start_time = (start_time + time_offset).isoformat()
 
     if auction_type == 'simple':
         data['data']['auctionPeriod']['startDate'] = new_start_time
@@ -51,8 +60,9 @@ def update_auctionPeriod(path, auction_type, time_offset_sec=120):
 
 # TODO: should be studied and improved
 def planning(worker_directory_path, tender_file_path, worker, auction_id,
-             config, time_offset, wait_for_result=False):
+             config, start_time, time_offset, wait_for_result=False):
     with update_auctionPeriod(tender_file_path, auction_type='simple',
+                              start_time=start_time,
                               time_offset_sec=time_offset) \
             as auction_file:
         command = '{0}/bin/{1} planning {2} {0}/etc/{3} ' \
@@ -69,8 +79,9 @@ def planning(worker_directory_path, tender_file_path, worker, auction_id,
 
 
 def run(worker_directory_path, tender_file_path, worker, auction_id, config,
-        time_offset, wait_for_result=False):
+        start_time, time_offset, wait_for_result=False):
     with update_auctionPeriod(tender_file_path, auction_type='simple',
+                              start_time=start_time,
                               time_offset_sec=time_offset) \
             as auction_file:
         p = Popen('{0}/bin/{1} run {2} {0}/etc/{3} --planning_procerude '
@@ -83,7 +94,7 @@ def run(worker_directory_path, tender_file_path, worker, auction_id, config,
 
 def load_testing(worker_directory_path, tender_file_path, worker, config,
                  count, initial_number, tender_id_base, concurency,
-                 run_auction=False, time_offset=120,
+                 run_auction=False, start_time=None, time_offset=120,
                  wait_for_result=False):
     positions = 4
 
@@ -96,13 +107,13 @@ def load_testing(worker_directory_path, tender_file_path, worker, config,
         pool.apply_async(
             planning,
             (worker_directory_path, tender_file_path, worker, auction_id,
-             config, time_offset, wait_for_result)
+             config, start_time, time_offset, wait_for_result)
         )
         if run_auction:
             pool.apply_async(
                 run,
-                (tender_file_path, worker, auction_id, config, time_offset,
-                 wait_for_result)
+                (tender_file_path, worker, auction_id, config, start_time,
+                 time_offset, wait_for_result)
             )
         pool.wait_available()
     pool.join()
@@ -110,7 +121,7 @@ def load_testing(worker_directory_path, tender_file_path, worker, config,
 
 def main(auction_type, action_type, worker_directory_path=CWD,
          tender_file_path='', tender_id_base=None, auctions_number=0,
-         initial_number=0, concurency=500, run_auction=False,
+         initial_number=0, concurency=500, run_auction=False, start_time=None,
          time_offset=120, wait_for_result=False):
     actions = globals()
     tender_id_base_local = TENDER_DATA[auction_type]['tender_id_base'] if \
@@ -127,6 +138,7 @@ def main(auction_type, action_type, worker_directory_path=CWD,
                          tender_id_base_local,
                          concurency,
                          run_auction,
+                         start_time,
                          time_offset,
                          wait_for_result)
         else:
@@ -135,6 +147,7 @@ def main(auction_type, action_type, worker_directory_path=CWD,
                                      TENDER_DATA[auction_type]['worker'],
                                      TENDER_DATA[auction_type]['id'],
                                      TENDER_DATA[auction_type]['config'],
+                                     start_time,
                                      time_offset,
                                      wait_for_result)
 
@@ -150,6 +163,7 @@ if __name__ == '__main__':
     parser.add_argument('--auctions_number', type=int, nargs='?', default=1)
     parser.add_argument('--initial_number', type=int, nargs='?', default=0)
     parser.add_argument('--concurency', type=int, nargs='?', default=20)
+    parser.add_argument('--start_time', type=str, nargs='?', default=None)
     parser.add_argument('--time_offset', type=int, nargs='?', default=120)
     parser.add_argument('--run_auction', action='store_true')
     parser.add_argument('--wait_for_result', action='store_true')
@@ -158,4 +172,4 @@ if __name__ == '__main__':
     main(args.auction_type, args.action_type, args.worker_directory_path,
          args.tender_file_path, args.tender_id_base, args.auctions_number,
          args.initial_number, args.concurency, args.run_auction,
-         args.time_offset, args.wait_for_result)
+         args.start_time, args.time_offset, args.wait_for_result)
