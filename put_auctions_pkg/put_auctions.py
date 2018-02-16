@@ -19,6 +19,9 @@ from gevent.subprocess import check_output
 from datetime import datetime, timedelta
 from random import randint
 import iso8601
+from configparser import RawConfigParser
+import io
+
 
 PWD = os.path.dirname(os.path.realpath(__file__))
 CWD = os.getcwd()
@@ -120,12 +123,29 @@ def load_testing(worker_directory_path, tender_file_path, worker, config,
 
 
 def main(auction_type, action_type, worker_directory_path=CWD,
-         tender_file_path='', tender_id_base=None, auctions_number=0,
-         initial_number=0, concurency=500, run_auction=False, start_time=None,
-         time_offset=120, wait_for_result=False):
+         tender_file_path='', run_auction=False, wait_for_result=False,
+         data=''):
+
+    with open(data, 'r') as f:
+        sample_config = f.read()
+    config = RawConfigParser(allow_no_value=True)
+    config.read_file(io.BytesIO(sample_config))
+
+    PARAMS = {}
+    for option in config.options(auction_type):
+        PARAMS[option] = config.get(auction_type, option)
+
+    auctions_number = PARAMS['auctions_number']
+    initial_number = PARAMS['initial_number']
+    concurency = PARAMS['concurency']
+    start_time = PARAMS['start_time']
+    time_offset = PARAMS['time_offset']
+
     actions = globals()
+
     tender_id_base_local = TENDER_DATA[auction_type]['tender_id_base'] if \
-        tender_id_base is None else tender_id_base
+        PARAMS['tender_id_base'] is None else PARAMS['tender_id_base']
+
     tender_file_path = tender_file_path or TENDER_DATA[auction_type]['path']
     if action_type in [elem.replace('_', '-') for elem in actions]:
         if action_type == 'load-testing':
@@ -159,17 +179,12 @@ if __name__ == '__main__':
     parser.add_argument('--worker_directory_path', type=str, nargs='?',
                         default=CWD)
     parser.add_argument('--tender_file_path', type=str, nargs='?', default='')
-    parser.add_argument('--tender_id_base', type=str, nargs='?', default=None)
-    parser.add_argument('--auctions_number', type=int, nargs='?', default=1)
-    parser.add_argument('--initial_number', type=int, nargs='?', default=0)
-    parser.add_argument('--concurency', type=int, nargs='?', default=20)
-    parser.add_argument('--start_time', type=str, nargs='?', default=None)
-    parser.add_argument('--time_offset', type=int, nargs='?', default=120)
     parser.add_argument('--run_auction', action='store_true')
     parser.add_argument('--wait_for_result', action='store_true')
+    parser.add_argument('--data', type=str, nargs='?', default='')
 
     args = parser.parse_args()
+
     main(args.auction_type, args.action_type, args.worker_directory_path,
-         args.tender_file_path, args.tender_id_base, args.auctions_number,
-         args.initial_number, args.concurency, args.run_auction,
-         args.start_time, args.time_offset, args.wait_for_result)
+         args.tender_file_path, args.run_auction, args.wait_for_result,
+         args.data)
