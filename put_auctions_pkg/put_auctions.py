@@ -135,16 +135,16 @@ def main(auction_type, action_type, worker_directory_path=CWD,
     for option in config.options(auction_type):
         PARAMS[option] = config.get(auction_type, option)
 
-    auctions_number = PARAMS['auctions_number']
-    initial_number = PARAMS['initial_number']
-    concurency = PARAMS['concurency']
+    auctions_number = int(PARAMS['auctions_number'])
+    initial_number = int(PARAMS['initial_number'])
+    concurency = int(PARAMS['concurency'])
     start_time = PARAMS['start_time']
-    time_offset = PARAMS['time_offset']
+    time_offset = int(PARAMS['time_offset'])
 
     actions = globals()
 
     tender_id_base_local = TENDER_DATA[auction_type]['tender_id_base'] if \
-        PARAMS['tender_id_base'] is None else PARAMS['tender_id_base']
+        not PARAMS['tender_id_base'] else PARAMS['tender_id_base']
 
     tender_file_path = tender_file_path or TENDER_DATA[auction_type]['path']
     if action_type in [elem.replace('_', '-') for elem in actions]:
