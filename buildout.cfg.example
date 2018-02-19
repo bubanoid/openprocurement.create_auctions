@@ -4,20 +4,9 @@ extends = profiles/base.cfg
 [auctions_info]
 auction_type = insider
 worker_directory_path = /home/quintagroup.com/openprocurement.auction.buildout
-auctions_number = 1000
-initial_number = 0
-tender_id_base = '1'
-concurency = 10
-time_offset = 120
 
 [insider]
 dutch_steps = 10
-tender_id_base = 3
-auctions_number = 150
-initial_number = 75
-concurency = 20
-start_time = 2018-02-15T18:06:17.596073+02:00
-time_offset = 180
 bidders =
   93b5e1de62734362b09abfead33a7c60
   b663ca42ff3d4289a0251a1cb42ff818

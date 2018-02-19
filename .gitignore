@@ -97,4 +97,5 @@ bin/
 etc/
 # circus.ini
 
-/data
+/data/*
+!/data/data.cfg
