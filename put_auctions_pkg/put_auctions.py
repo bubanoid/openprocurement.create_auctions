@@ -17,7 +17,6 @@ from gevent.pool import Pool
 from gevent.subprocess import Popen
 from gevent.subprocess import check_output
 from datetime import datetime, timedelta
-from random import randint
 import iso8601
 from configparser import RawConfigParser
 import io
@@ -42,7 +41,6 @@ def update_auctionPeriod(path, auction_type, start_time=None,
     else:
         start_time = iso8601.parse_date(start_time)
 
-    time_offset_sec = randint(0, time_offset_sec)
     time_offset = timedelta(seconds=time_offset_sec)
     with open(path) as file:
         data = json.loads(file.read())
@@ -110,14 +108,8 @@ def load_testing(worker_directory_path, tender_file_path, worker, config,
         pool.apply_async(
             planning,
             (worker_directory_path, tender_file_path, worker, auction_id,
-             config, start_time, time_offset, wait_for_result)
+             config, start_time, i*3600, wait_for_result)
         )
-        if run_auction:
-            pool.apply_async(
-                run,
-                (tender_file_path, worker, auction_id, config, start_time,
-                 time_offset, wait_for_result)
-            )
         pool.wait_available()
     pool.join()
 

@@ -92,7 +92,7 @@ ENV/
 .vagrant/
 playbook.retry
 
-buildout.cfg
+#buildout.cfg
 bin/
 etc/
 # circus.ini

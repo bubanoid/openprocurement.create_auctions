@@ -1,0 +1,120 @@
+{
+  "data": {
+    "description": "Tender Description",
+    "title": "Tender Title",
+    "minimalStep": {
+      "currency": "USD",
+      "amount": 35000.0,
+      "valueAddedTaxIncluded": true
+    },
+    "auctionPeriod": {
+      "startDate": "2017-06-28T10:32:19.233669+03:00",
+      "endDate": null
+    },
+    "bids": [
+{% for item in [r.strip() for r in parts[parts['auctions_info'].auction_type].bidders.split()[:-1] if r.strip()] %}\
+            {
+                "date": "2014-11-19T08:22:21.726234+00:00",
+                "id": "${item}",
+                "tenderers": [
+                    {
+                        "address": {
+                            "countryName": "USA",
+                            "locality": "New-York",
+                            "postalCode": "849999",
+                            "region": "New-York",
+                            "streetAddress": "6973 Grey Mountain Apt. 965"
+                        },
+                        "contactPoint": {
+                            "email": "automation+4077486456@smartweb.com",
+                            "name": "John Smith",
+                            "telephone": "+380139815286"
+                        },
+                        "identifier": {
+                            "id": "46171",
+                            "legalName": "Michael Jackson",
+                            "scheme": "USA-EDR",
+                            "uri": "http://9665642342.promtest.com"
+                        },
+                        "name": "Google inc."
+                    }
+                ]
+            },
+{% end %}\
+{% for item in [r.strip() for r in parts[parts['auctions_info'].auction_type].bidders.split()[-1:] if r.strip()] %}\
+            {
+                "date": "2014-11-19T08:22:21.726234+00:00",
+                "id": "${item}",
+                "tenderers": [
+                    {
+                        "address": {
+                            "countryName": "USA",
+                            "locality": "New-York",
+                            "postalCode": "849999",
+                            "region": "New-York",
+                            "streetAddress": "6973 Grey Mountain Apt. 965"
+                        },
+                        "contactPoint": {
+                            "email": "automation+4077486456@smartweb.com",
+                            "name": "John Smith",
+                            "telephone": "+380139815286"
+                        },
+                        "identifier": {
+                            "id": "46171",
+                            "legalName": "Michael Jackson",
+                            "scheme": "USA-EDR",
+                            "uri": "http://9665642342.promtest.com"
+                        },
+                        "name": "Google inc."
+                    }
+                ]
+            }
+{% end %}\
+        ],
+    "procurementMethodType": "belowThreshold",
+    "value": {
+      "currency": "USD",
+      "amount": 500000.0,
+      "valueAddedTaxIncluded": true
+    },
+    "tenderID": "USA-11111",
+    "items": [
+      {
+        "unit": {
+          "name": "item"
+        },
+        "additionalClassifications": [
+          {
+            "scheme": "XXXX",
+            "id": "55.51.10.300",
+            "description": "some description"
+          }
+        ],
+        "description": "some description",
+        "classification": {
+          "scheme": "CPV",
+          "id": "55523100-3",
+          "description": "some description"
+        },
+        "quantity": 5
+      }
+    ],
+    "dateModified": "2017-11-19T08:22:24.866669+00:00",
+    "procuringEntity": {
+      "identifier": {
+        "scheme": "https://ns.openprocurement.org/us/edrpou",
+        "id": "21725150",
+        "uri": "http://sch10.edu/",
+        "legalName": "Apple Computer, Inc."
+      },
+      "name": "Apple inc.",
+      "address": {
+        "postalCode": "21027",
+        "countryName": "USA",
+        "streetAddress": "22 Cupertino",
+        "region": "California",
+        "locality": "California"
+      }
+    }
+  }
+}
