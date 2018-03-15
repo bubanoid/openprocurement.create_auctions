@@ -27,7 +27,7 @@ PWD = os.path.dirname(os.path.realpath(__file__))
 CWD = os.getcwd()
 
 TENDER_DATA = \
-    {'simple': {'path': '{}/data/simple_eng.json'.format(PWD),
+    {'simple': {'path': '{}/data/simple.json'.format(PWD),
                 'worker': 'auction_worker',
                 'id': 'NOT DEFINED YET',
                 'config': 'auction_worker_defaults.yaml',
