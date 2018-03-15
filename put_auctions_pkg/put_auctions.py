@@ -27,11 +27,16 @@ PWD = os.path.dirname(os.path.realpath(__file__))
 CWD = os.getcwd()
 
 TENDER_DATA = \
-    {'insider': {'path': os.path.join(PWD, '..', 'data', 'insider.json'),
-                 'worker': 'auction_insider',
-                 'id': '1'*32,
-                 'config': 'auction_worker_insider.yaml',
-                 'tender_id_base': '1'}}
+    {'simple': {'path': '{}/data/simple_eng.json'.format(PWD),
+                'worker': 'auction_worker',
+                'id': 'NOT DEFINED YET',
+                'config': 'auction_worker_defaults.yaml',
+                'tender_id_base': '1'},
+    'insider': {'path': '{}/data/insider.json'.format(PWD),
+                'worker': 'auction_insider',
+                'id': 'NOT DEFINED YET',
+                'config': 'auction_worker_insider.yaml',
+                'tender_id_base': '1'}}
 
 
 @contextlib.contextmanager
@@ -110,14 +115,8 @@ def load_testing(worker_directory_path, tender_file_path, worker, config,
         pool.apply_async(
             planning,
             (worker_directory_path, tender_file_path, worker, auction_id,
-             config, start_time, time_offset, wait_for_result)
+             config, start_time, i*3600, wait_for_result)
         )
-        if run_auction:
-            pool.apply_async(
-                run,
-                (tender_file_path, worker, auction_id, config, start_time,
-                 time_offset, wait_for_result)
-            )
         pool.wait_available()
     pool.join()
 
