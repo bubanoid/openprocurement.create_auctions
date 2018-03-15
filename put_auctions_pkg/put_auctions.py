@@ -27,16 +27,16 @@ PWD = os.path.dirname(os.path.realpath(__file__))
 CWD = os.getcwd()
 
 TENDER_DATA = \
-    {'simple': {'path': '{}/data/simple.json'.format(PWD),
+    {'simple': {'path': os.path.join(PWD, '..', 'data', 'simple.json'),
                 'worker': 'auction_worker',
                 'id': 'NOT DEFINED YET',
                 'config': 'auction_worker_defaults.yaml',
                 'tender_id_base': '1'},
-    'insider': {'path': '{}/data/insider.json'.format(PWD),
-                'worker': 'auction_insider',
-                'id': 'NOT DEFINED YET',
-                'config': 'auction_worker_insider.yaml',
-                'tender_id_base': '1'}}
+    'insider': {'path': os.path.join(PWD, '..', 'data', 'insider.json'),
+                 'worker': 'auction_insider',
+                 'id': '1'*32,
+                 'config': 'auction_worker_insider.yaml',
+                 'tender_id_base': '1'}}
 
 
 @contextlib.contextmanager
