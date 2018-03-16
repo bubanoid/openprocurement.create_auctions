@@ -16,68 +16,32 @@
             {
                 "date": "2014-11-19T08:22:21.726234+00:00",
                 "id": "${item}",
-                "tenderers": [
-                    {
-                        "address": {
-                            "countryName": "USA",
-                            "locality": "New-York",
-                            "postalCode": "849999",
-                            "region": "New-York",
-                            "streetAddress": "6973 Grey Mountain Apt. 965"
-                        },
-                        "contactPoint": {
-                            "email": "automation+4077486456@smartweb.com",
-                            "name": "John Smith",
-                            "telephone": "+380139815286"
-                        },
-                        "identifier": {
-                            "id": "46171",
-                            "legalName": "Michael Jackson",
-                            "scheme": "USA-EDR",
-                            "uri": "http://9665642342.promtest.com"
-                        },
-                        "name": "Google inc."
-                    }
-                ]
+                "value": {
+                    "currency": null,
+                    "amount": 475000.0,
+                    "valueAddedTaxIncluded": true
+                }
             },
 {% end %}\
 {% for item in [r.strip() for r in parts[parts['auctions_info'].auction_type].bidders.split()[-1:] if r.strip()] %}\
             {
                 "date": "2014-11-19T08:22:21.726234+00:00",
                 "id": "${item}",
-                "tenderers": [
-                    {
-                        "address": {
-                            "countryName": "USA",
-                            "locality": "New-York",
-                            "postalCode": "849999",
-                            "region": "New-York",
-                            "streetAddress": "6973 Grey Mountain Apt. 965"
-                        },
-                        "contactPoint": {
-                            "email": "automation+4077486456@smartweb.com",
-                            "name": "John Smith",
-                            "telephone": "+380139815286"
-                        },
-                        "identifier": {
-                            "id": "46171",
-                            "legalName": "Michael Jackson",
-                            "scheme": "USA-EDR",
-                            "uri": "http://9665642342.promtest.com"
-                        },
-                        "name": "Google inc."
-                    }
-                ]
+                "value": {
+                    "currency": null,
+                    "amount": 475000.0,
+                    "valueAddedTaxIncluded": true
+                }
             }
 {% end %}\
-        ],
+    ],
     "procurementMethodType": "belowThreshold",
     "value": {
       "currency": "USD",
       "amount": 500000.0,
       "valueAddedTaxIncluded": true
     },
-    "tenderID": "USA-11111",
+    "tenderID": "US-12345",
     "items": [
       {
         "unit": {
