@@ -41,7 +41,7 @@ TENDER_DATA = \
 
 @contextlib.contextmanager
 def update_auctionPeriod(path, auction_type, start_time=None,
-                         time_offset_sec=120):
+                         time_offset_sec=120, auction_id='12345'):
     if not start_time:
         start_time = datetime.now(tzlocal())
     else:
@@ -58,6 +58,8 @@ def update_auctionPeriod(path, auction_type, start_time=None,
         for lot in data['data']['lots']:
             lot['auctionPeriod']['startDate'] = new_start_time
 
+    data['data']['tenderID'] = "US-".format(auction_id[-5:])
+
     with tempfile.NamedTemporaryFile(delete=False) as auction_file:
         json.dump(data, auction_file)
         auction_file.seek(0)
@@ -70,7 +72,8 @@ def planning(worker_directory_path, tender_file_path, worker, auction_id,
              config, start_time, time_offset, wait_for_result=False):
     with update_auctionPeriod(tender_file_path, auction_type='simple',
                               start_time=start_time,
-                              time_offset_sec=time_offset) \
+                              time_offset_sec=time_offset,
+                              auction_id=auction_id) \
             as auction_file:
         command = '{0}/bin/{1} planning {2} {0}/etc/{3} ' \
                   '--planning_procerude partial_db --auction_info {4}'\
@@ -83,20 +86,6 @@ def planning(worker_directory_path, tender_file_path, worker, auction_id,
         #                   auction_file).split())
         # if wait_for_result:
         #     p.wait()
-
-
-def run(worker_directory_path, tender_file_path, worker, auction_id, config,
-        start_time, time_offset, wait_for_result=False):
-    with update_auctionPeriod(tender_file_path, auction_type='simple',
-                              start_time=start_time,
-                              time_offset_sec=time_offset) \
-            as auction_file:
-        p = Popen('{0}/bin/{1} run {2} {0}/etc/{3} --planning_procerude '
-                  'partial_db --auction_info {4}'
-                  .format(worker_directory_path, worker, auction_id, config,
-                          auction_file).split())
-        if wait_for_result:
-            p.wait()
 
 
 def load_testing(worker_directory_path, tender_file_path, worker, config,
